@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Startify</string>
+    <string name="app_description">Start Spotify playback from Tasker</string>
+    <string name="xposed_error">Error while loading data from Spotify. \n\nIs the Xposed framework installed and Xposed module enabled?</string>
+    <string name="no_items">No items</string>
+    <string name="your_music">Your Music</string>
+    <string name="change">Change</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="repeat">Repeat</string>
+    <string name="play_from_your_music">Play from Your Music</string>
+    <string name="play_from_search">Play from Search</string>
+    <string name="play_description">Start playing %1$s</string>
+    <string name="search_query">Search query</string>
+</resources>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".config.YourMusicItemPickerActivity">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        tools:visibility="gone"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:visibility="gone"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+
+    <TextView
+        android:id="@+id/xposed_error"
+        style="@style/Base.TextAppearance.AppCompat.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawableTop="@drawable/no_xposed"
+        android:drawablePadding="20dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:text="@string/xposed_error"
+        android:visibility="gone"
+        tools:visibility="visible">
+    </TextView>
+
+    <TextView
+        android:id="@+id/no_items_notice"
+        style="@style/Base.TextAppearance.AppCompat.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/no_items"
+        android:visibility="gone"/>
+
+</FrameLayout>
