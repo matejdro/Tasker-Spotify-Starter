@@ -20,7 +20,7 @@ public class XposedSecurityBypass implements IXposedHookLoadPackage {
 
     private void hookMediaBrowserService(ClassLoader classLoader, String mediaBrowserServiceClass) {
         XposedBridge.log("Hooking " + mediaBrowserServiceClass);
-        XposedHelpers.findAndHookMethod(mediaBrowserServiceClass, classLoader, "onGetRoot", String.class, int.class, Bundle.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(mediaBrowserServiceClass, classLoader, "a", String.class, int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
                 String pkg = (String) param.args[0];
