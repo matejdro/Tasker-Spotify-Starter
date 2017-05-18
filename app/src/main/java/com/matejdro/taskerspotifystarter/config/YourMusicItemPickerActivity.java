@@ -62,7 +62,7 @@ public class YourMusicItemPickerActivity extends AppCompatActivity {
                 itemsStack.push(item);
 
         } else {
-            currentItemId = "your_music";
+            currentItemId = "com.matejdro.taskerspotifystarter---your_music";
         }
 
         mediaBrowser = new MediaBrowserCompat(this, SpotifyExecutionService.SPOTIFY_BROWSER_COMPONENT, new ConnectionCallback(), null);
@@ -162,6 +162,8 @@ public class YourMusicItemPickerActivity extends AppCompatActivity {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaBrowserCompat.MediaItem> children) {
             mediaBrowser.unsubscribe(parentId);
+
+            Log.d(TAG, "Loaded " + parentId);
 
             mediaItems = children;
             itemsAdapter.notifyDataSetChanged();

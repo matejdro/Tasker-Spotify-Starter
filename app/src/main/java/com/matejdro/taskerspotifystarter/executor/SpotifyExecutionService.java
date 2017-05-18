@@ -3,9 +3,11 @@ package com.matejdro.taskerspotifystarter.executor;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.media.session.MediaController;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -13,6 +15,8 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.matejdro.taskerspotifystarter.TaskerKeys;
+
+import java.util.List;
 
 public class SpotifyExecutionService extends Service {
     public static final String TAG = "SpotifyExecutionService";
@@ -108,6 +112,19 @@ public class SpotifyExecutionService extends Service {
     private class BrowserConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
         @Override
         public void onConnected() {
+            mediaBrowser.subscribe(mediaBrowser.getRoot(), new RootReceiveCallback());
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            Log.e(TAG, "Connection Failed");
+            finish(false);
+        }
+    }
+
+    private class RootReceiveCallback extends MediaBrowserCompat.SubscriptionCallback {
+        @Override
+        public void onChildrenLoaded(@NonNull String parentId, List<MediaBrowserCompat.MediaItem> children) {
             try {
                 mediaController = new MediaControllerCompat(SpotifyExecutionService.this, mediaBrowser.getSessionToken());
                 startPlayback();
@@ -118,8 +135,7 @@ public class SpotifyExecutionService extends Service {
         }
 
         @Override
-        public void onConnectionFailed() {
-            Log.e(TAG, "Connection Failed");
+        public void onError(@NonNull String parentId) {
             finish(false);
         }
     }
