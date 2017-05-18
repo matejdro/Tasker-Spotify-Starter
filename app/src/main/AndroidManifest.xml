@@ -21,7 +21,8 @@
         <activity
             android:name=".config.SearchConfigActivity"
             android:exported="true"
-            android:label="@string/play_from_search">
+            android:label="@string/play_from_search"
+            android:enabled="false"> <!-- Disabled for now because of the bug in Spotify's implementation -->
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
             </intent-filter>
