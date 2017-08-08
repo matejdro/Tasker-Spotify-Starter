@@ -1,8 +1,13 @@
 package com.matejdro.taskerspotifystarter.executor;
 
+import android.app.IntentService;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.media.session.MediaController;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -13,41 +18,41 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 
 import com.matejdro.taskerspotifystarter.TaskerKeys;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SpotifyExecutionService extends Service {
+public class SpotifyExecutionService extends IntentService {
     public static final String TAG = "SpotifyExecutionService";
 
     public static final ComponentName SPOTIFY_BROWSER_COMPONENT = new ComponentName("com.spotify.music", "com.spotify.mobile.android.spotlets.androidauto.SpotifyMediaBrowserService");
     public static final String EXTRA_TASKER_INTENT = "TaskerIntent";
 
+    public static final String ACTION_SPOTIFY_PLAYBACK_STATE_INTENT = "com.spotify.music.playbackstatechanged";
+
     private Intent taskerIntent;
 
-    private MediaBrowserCompat mediaBrowser;
-    private MediaControllerCompat mediaController;
+    private volatile boolean spotifyPlaying = false;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        taskerIntent = intent.getParcelableExtra(EXTRA_TASKER_INTENT);
-        return START_NOT_STICKY;
+    public SpotifyExecutionService() {
+        super(TAG);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mediaBrowser = new MediaBrowserCompat(this, SpotifyExecutionService.SPOTIFY_BROWSER_COMPONENT, new BrowserConnectionCallback(), null);
-        mediaBrowser.connect();
+        registerReceiver(spotifyStateReceiver, new IntentFilter(ACTION_SPOTIFY_PLAYBACK_STATE_INTENT));
     }
 
     @Override
     public void onDestroy() {
-        mediaBrowser.disconnect();
-
         super.onDestroy();
+
+        unregisterReceiver(spotifyStateReceiver);
     }
 
     @Nullable
@@ -56,45 +61,72 @@ public class SpotifyExecutionService extends Service {
         return null;
     }
 
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent == null) {
+            return;
+        }
+
+        this.taskerIntent = intent.getParcelableExtra(EXTRA_TASKER_INTENT);
+        startPlayback();
+    }
+
     private void startPlayback() {
-        MediaControllerCompat.TransportControls transportControls = mediaController.getTransportControls();
+        //TODO Search support
+        //TODO Repeat support
 
         try {
             Bundle taskerBundle = taskerIntent.getBundleExtra("com.twofortyfouram.locale.intent.extra.BUNDLE");
 
+            String uri = taskerBundle.getString(TaskerKeys.KEY_MEDIA_ID);
+            if (uri == null) {
+                finish(false);
+                return;
+            }
+
+
+
+            StringBuilder suCmdBuilder = new StringBuilder();
+            suCmdBuilder.append("am startservice -a com.spotify.mobile.android.service.action.player.PLAY_CONTENT ");
+            suCmdBuilder.append("-d ");
+            suCmdBuilder.append(uri);
+            suCmdBuilder.append(' ');
+
             int shuffleMode = taskerBundle.getInt(TaskerKeys.KEY_SHUFFLE);
             switch (shuffleMode) {
                 case TaskerKeys.SHUFFLE_DISABLE:
-                    transportControls.sendCustomAction("TURN_SHUFFLE_OFF", null);
+                    suCmdBuilder.append("--ez shuffle false ");
                     break;
                 case TaskerKeys.SHUFFLE_ENABLE:
-                    transportControls.sendCustomAction("TURN_SHUFFLE_ON", null);
+                    suCmdBuilder.append("--ez shuffle true ");
                     break;
             }
 
-            int playbackAction = taskerBundle.getInt(TaskerKeys.KEY_ACTION);
-            if (playbackAction == TaskerKeys.ACTION_PLAY_FROM_YOUR_MUSIC) {
-                String mediaId = taskerBundle.getString(TaskerKeys.KEY_MEDIA_ID);
-                transportControls.playFromMediaId(mediaId, null);
-            } else if (playbackAction == TaskerKeys.ACTION_PLAY_FROM_SEARCH) {
-                String searchTerm = taskerBundle.getString(TaskerKeys.KEY_SEARCH_TERM);
-                transportControls.playFromSearch(searchTerm, null);
+            suCmdBuilder.append("com.spotify.music/com.spotify.mobile.android.service.SpotifyService");
+
+            String suCommandLine = suCmdBuilder.toString();
+
+            String[] args = new String[] {"su", "-c", suCommandLine };
+            Process process = Runtime.getRuntime().exec(args);
+            process.waitFor();
+
+            Thread.sleep(2000);
+
+            if (!spotifyPlaying) {
+                // When spotify is not running, it can take two tries to restart it back up
+
+                args = new String[] {"su", "-c", suCommandLine };
+                process = Runtime.getRuntime().exec(args);
+                process.waitFor();
             }
 
-            int repeatMode = taskerBundle.getInt(TaskerKeys.KEY_REPEAT);
+            String putInForegroundCmdLine = "am startservice -a " +
+                    "com.spotify.mobile.android.service.action.client.FOREGROUND " +
+                    "com.spotify.music/com.spotify.mobile.android.service.SpotifyService";
 
-            switch (repeatMode) {
-                case TaskerKeys.REPEAT_DISABLE:
-                    transportControls.sendCustomAction("TURN_REPEAT_ONE_OFF", null);
-                    transportControls.sendCustomAction("TURN_REPEAT_ALL_OFF", null);
-                    break;
-                case TaskerKeys.REPEAT_ONE:
-                    transportControls.sendCustomAction("TURN_REPEAT_ONE_ON", null);
-                    break;
-                case TaskerKeys.REPEAT_ALL:
-                    transportControls.sendCustomAction("TURN_REPEAT_ALL_ON", null);
-                    break;
-            }
+            args = new String[] {"su", "-c", putInForegroundCmdLine };
+            process = Runtime.getRuntime().exec(args);
+            process.waitFor();
 
             finish(true);
         } catch (Exception e) {
@@ -106,38 +138,12 @@ public class SpotifyExecutionService extends Service {
     private void finish(boolean success) {
         int result = success ? TaskerPlugin.Setting.RESULT_CODE_OK : TaskerPlugin.Setting.RESULT_CODE_FAILED;
         TaskerPlugin.Setting.signalFinish(this, taskerIntent, result, null);
-        stopSelf();
     }
 
-    private class BrowserConnectionCallback extends MediaBrowserCompat.ConnectionCallback {
+    private BroadcastReceiver spotifyStateReceiver = new BroadcastReceiver() {
         @Override
-        public void onConnected() {
-            mediaBrowser.subscribe(mediaBrowser.getRoot(), new RootReceiveCallback());
+        public void onReceive(Context context, Intent intent) {
+            spotifyPlaying = intent.getBooleanExtra("playstate", false);
         }
-
-        @Override
-        public void onConnectionFailed() {
-            Log.e(TAG, "Connection Failed");
-            finish(false);
-        }
-    }
-
-    private class RootReceiveCallback extends MediaBrowserCompat.SubscriptionCallback {
-        @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaBrowserCompat.MediaItem> children) {
-            try {
-                mediaController = new MediaControllerCompat(SpotifyExecutionService.this, mediaBrowser.getSessionToken());
-                startPlayback();
-            } catch (RemoteException e) {
-                Log.e(TAG, "Controller connection failed", e);
-                finish(false);
-            }
-        }
-
-        @Override
-        public void onError(@NonNull String parentId) {
-            finish(false);
-        }
-    }
-
+    };
 }
