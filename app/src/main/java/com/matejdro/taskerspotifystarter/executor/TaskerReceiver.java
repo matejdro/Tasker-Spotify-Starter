@@ -3,6 +3,7 @@ package com.matejdro.taskerspotifystarter.executor;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import com.matejdro.taskerspotifystarter.tasker.TaskerPlugin;
 
 public class TaskerReceiver extends BroadcastReceiver {
     @Override

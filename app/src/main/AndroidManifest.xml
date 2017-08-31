@@ -1,56 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.matejdro.taskerspotifystarter"
+<manifest xmlns:tools="http://schemas.android.com/tools" package="com.matejdro.taskerspotifystarter"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme" tools:ignore="AllowBackup">
 
         <activity
-            android:name=".config.YourMusicConfigActivity"
-            android:exported="true"
-            android:label="@string/play_from_your_music">
+                android:name=".config.StartPlaybackSetupActivity"
+                android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data android:scheme="startify"
+                      android:host="login"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".config.SearchConfigActivity"
-            android:exported="true"
-            android:label="@string/play_from_search"
-            android:enabled="false"> <!-- Disabled for now because of the bug in Spotify's implementation -->
+                android:exported="true"
+                android:name="com.spotify.sdk.android.authentication.AuthCallbackActivity"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar">
+
             <intent-filter>
-                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING"/>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                        android:scheme="@string/com_spotify_sdk_redirect_scheme"
+                        android:host="@string/com_spotify_sdk_redirect_host"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".config.YourMusicItemPickerActivity"
-            android:label="@string/your_music" />
+                android:name="com.spotify.sdk.android.authentication.LoginActivity"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
+
 
         <receiver
-            android:name=".executor.TaskerReceiver"
-            android:exported="true">
+                android:name=".executor.TaskerReceiver"
+                android:exported="true" tools:ignore="ExportedReceiver">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING"/>
             </intent-filter>
         </receiver>
 
         <service android:name=".executor.SpotifyExecutionService" />
-
-        <meta-data
-            android:name="xposedmodule"
-            android:value="true"/>
-        <meta-data
-            android:name="xposeddescription"
-            android:value="@string/app_description"/>
-        <meta-data
-            android:name="xposedminversion"
-            android:value="53"/>
     </application>
 
 </manifest>

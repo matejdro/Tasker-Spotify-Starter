@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="shuffle_modes">
-        <item>Do not change</item>
-        <item>Enable</item>
-        <item>Disable</item>
-    </string-array>
 
-    <string-array name="repeat_modes">
-        <item>Do not change</item>
-        <item>No repeat</item>
-        <item>Repeat one</item>
-        <item>Repeat all</item>
-    </string-array>
 </resources>

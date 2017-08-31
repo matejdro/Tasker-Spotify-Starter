@@ -1,14 +1,38 @@
 <resources>
     <string name="app_name">Startify</string>
-    <string name="app_description">Start Spotify playback from Tasker</string>
-    <string name="xposed_error">Error while loading data from Spotify. \n\nIs the Xposed framework installed and Xposed module enabled?</string>
-    <string name="no_items">No items</string>
-    <string name="your_music">Your Music</string>
-    <string name="change">Change</string>
     <string name="shuffle">Shuffle</string>
-    <string name="repeat">Repeat</string>
-    <string name="play_from_your_music">Play from Your Music</string>
-    <string name="play_from_search">Play from Search</string>
-    <string name="play_description">Start playing %1$s</string>
-    <string name="search_query">Search query</string>
+
+    <string name="com_spotify_sdk_redirect_scheme" translatable="false">startify</string>
+    <string name="com_spotify_sdk_redirect_host" translatable="false">login</string>
+    <string name="checking_root">Checking root access…</string>
+    <string name="error_no_root">Sorry, you do not appear to have root access</string>
+    <string name="error">Error</string>
+    <string name="select_media">Select media to start:</string>
+    <string name="select_from_library">From your library</string>
+    <string name="select_from_url">From URL</string>
+    <string name="confirm">Confirm</string>
+    <string name="media_url">Media URL</string>
+    <string name="uri_picker_description">Here you can paste the URL to media you want to start.\n\nYou can get
+        the URL by going to desired playlist, artist etc. in any Spotify app and using the share button.\n\nTasker
+        variables are also supported if you want to determine URL dynamically.
+    </string>
+    <string name="uri_description">Play from URI</string>
+    <string name="library_item_type_select_title">Select what from your library:</string>
+    <string name="playlist">Playlist</string>
+    <string name="logging_in">Logging in</string>
+    <string name="error_login_cancelled">You need to login into Spotify to fetch your Library</string>
+    <string name="error_login_failed">Login error. Please check your internet connection and try again.</string>
+    <string name="playlist_description">Play playlist %1$s</string>
+    <string name="tracks_description">Play %1$s</string>
+    <string name="albums_description">Play album %1$s</string>
+    <string name="saved_song">Saved song</string>
+    <string name="album">Album</string>
+    <string name="save">Save</string>
+    <string name="error_invalid_action">Invalid action. Please delete and recreate.</string>
+    <string name="error_invalid_spotify_uri">Invalid spotify URL</string>
+    <string name="notice">Notice</string>
+    <string name="notice_enable_broadcast_status">For this plugin to work correctly, you must enable \"Device Broadcast
+        Status\" in Spotify\'s settings
+    </string>
+
 </resources>
