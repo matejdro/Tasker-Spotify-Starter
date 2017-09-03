@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import com.matejdro.taskerspotifystarter.R;
 import com.matejdro.taskerspotifystarter.SpotifyConstants;
 import com.matejdro.taskerspotifystarter.TaskerKeys;
@@ -47,8 +46,6 @@ public class StartPlaybackSetupActivity extends TaskerSetupActivity {
         if (savedInstanceState == null) {
             swapFragment(new RootCheckFragment(), false);
         }
-
-        Log.d("SpotifySetup", "External Access: " + isSpotifyBroadcastStatusEnabled());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.matejdro.taskerspotifystarter.util;
 
-import android.util.Log;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
@@ -26,7 +25,6 @@ public class RootUtils {
             out.flush();
 
             String line = in.readLine();
-            Log.d("TAG", "Line " + line);
             return line != null && line.contains("uid=0(root)");
         } catch (IOException e) {
             return false;
