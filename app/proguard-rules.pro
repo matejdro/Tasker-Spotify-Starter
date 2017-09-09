@@ -15,3 +15,25 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+### DO NOT OBFUSCATE (helps with bug reports)
+
+-dontobfuscate
+-optimizations !code/allocation/variable
+
+### RETROFIT
+
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+-dontwarn rx.**
+-dontwarn retrofit.appengine.UrlFetchClient
+
+### PICASSO
+
+-dontwarn com.squareup.okhttp.**
+
+### ARCHITECTURE COMPONENTS
+
+-keep class android.arch.** { *; }
+
+-keep class com.matejdro.taskerspotifystarter.config.StartPlaybackSetupActivity { <init>(...); }
