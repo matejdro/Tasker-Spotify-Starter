@@ -37,3 +37,9 @@
 -keep class android.arch.** { *; }
 
 -keep class com.matejdro.taskerspotifystarter.config.StartPlaybackSetupActivity { <init>(...); }
+
+### FABRIC
+
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
