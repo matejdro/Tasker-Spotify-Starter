@@ -2,20 +2,22 @@ package com.matejdro.taskerspotifystarter.spotifydata.providers;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+
 import com.jakewharton.rxrelay2.PublishRelay;
 import com.matejdro.taskerspotifystarter.spotifydata.CredentialStore;
 import com.matejdro.taskerspotifystarter.spotifydata.SpotifyListType;
 import com.matejdro.taskerspotifystarter.spotifydata.SpotifyPlaybackItem;
 import com.matejdro.taskerspotifystarter.util.Resource;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.models.Image;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class SpotifyListProvider<T> {
     protected SpotifyApi spotifyApi;
@@ -104,11 +106,20 @@ public abstract class SpotifyListProvider<T> {
         // Get the smallest image that is still at least 100px wide
         Collections.sort(images, (image1, image2) -> image1.width - image2.width);
         for (Image image : images) {
+            if (image == null || image.width == null || image.url == null) {
+                continue;
+            }
+
             if (image.width >= 100) {
                 return image.url;
             }
         }
 
-        return images.get(images.size() - 1).url;
+        Image finalImage = images.get(images.size() - 1);
+        if (finalImage != null && finalImage.url != null) {
+            return finalImage.url;
+        }
+
+        return null;
     }
 }
