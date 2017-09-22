@@ -5,7 +5,9 @@
     <string name="com_spotify_sdk_redirect_scheme" translatable="false">startify</string>
     <string name="com_spotify_sdk_redirect_host" translatable="false">login</string>
     <string name="checking_root">Checking root access…</string>
-    <string name="error_no_root">Sorry, you do not appear to have root access</string>
+    <string name="error_no_root">Sorry, you do not appear to have root access. If this is\n
+        incorrect, you can try granting the app SU access.
+    </string>
     <string name="error">Error</string>
     <string name="select_media">Select media to start:</string>
     <string name="select_from_library">From your library</string>
@@ -34,5 +36,4 @@
     <string name="notice_enable_broadcast_status">For this plugin to work correctly, you must enable \"Device Broadcast
         Status\" in Spotify\'s settings
     </string>
-
 </resources>
