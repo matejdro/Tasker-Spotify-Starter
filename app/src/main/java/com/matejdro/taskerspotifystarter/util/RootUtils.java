@@ -1,22 +1,16 @@
 package com.matejdro.taskerspotifystarter.util;
 
-import io.reactivex.Single;
-import io.reactivex.schedulers.Schedulers;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
+
 public class RootUtils {
     public static boolean checkRootBlocking() {
         try {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             Process process = Runtime.getRuntime().exec("su");
 
             DataOutputStream out = new DataOutputStream(process.getOutputStream());
