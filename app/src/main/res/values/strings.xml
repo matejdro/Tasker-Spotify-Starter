@@ -36,4 +36,6 @@
     <string name="notice_enable_broadcast_status">For this plugin to work correctly, you must enable \"Device Broadcast
         Status\" in Spotify\'s settings
     </string>
+    <string name="spotify_execution">Spotify execution</string>
+    <string name="starting_your_content">Starting your content</string>
 </resources>

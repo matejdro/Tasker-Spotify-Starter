@@ -3,6 +3,8 @@ package com.matejdro.taskerspotifystarter.executor;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
+
 import com.matejdro.taskerspotifystarter.tasker.TaskerPlugin;
 
 public class TaskerReceiver extends BroadcastReceiver {
@@ -14,6 +16,6 @@ public class TaskerReceiver extends BroadcastReceiver {
 
         Intent serviceIntent = new Intent(context, SpotifyExecutionService.class);
         serviceIntent.putExtra(SpotifyExecutionService.EXTRA_TASKER_INTENT, intent);
-        context.startService(serviceIntent);
+        ContextCompat.startForegroundService(context, serviceIntent);
     }
 }

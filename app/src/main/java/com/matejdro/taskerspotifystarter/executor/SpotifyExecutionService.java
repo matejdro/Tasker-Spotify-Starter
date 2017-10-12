@@ -1,13 +1,19 @@
 package com.matejdro.taskerspotifystarter.executor;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+
 import com.matejdro.taskerspotifystarter.R;
 import com.matejdro.taskerspotifystarter.SpotifyConstants;
 import com.matejdro.taskerspotifystarter.TaskerKeys;
@@ -19,6 +25,8 @@ public class SpotifyExecutionService extends IntentService {
     public static final String TAG = "SpotifyExecutionService";
 
     public static final String EXTRA_TASKER_INTENT = "TaskerIntent";
+
+    private static final String NOTIFICATION_CHANNEL_SERVICE = "ExecutionService";
 
     private Intent taskerIntent;
 
@@ -32,6 +40,15 @@ public class SpotifyExecutionService extends IntentService {
     public void onCreate() {
         super.onCreate();
 
+        createNotificationChannel();
+        Notification foregroundNotification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_SERVICE)
+                .setContentTitle(getString(R.string.spotify_execution))
+                .setContentText(getString(R.string.starting_your_content))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .build();
+
+        startForeground(1000, foregroundNotification);
+
         registerReceiver(spotifyStateReceiver, new IntentFilter(SpotifyConstants.ACTION_SPOTIFY_PLAYBACK_STATE_INTENT));
     }
 
@@ -40,6 +57,21 @@ public class SpotifyExecutionService extends IntentService {
         super.onDestroy();
 
         unregisterReceiver(spotifyStateReceiver);
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+
+        NotificationChannel channel = new NotificationChannel(
+                NOTIFICATION_CHANNEL_SERVICE,
+                getString(R.string.spotify_execution),
+                NotificationManager.IMPORTANCE_MIN
+        );
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
     }
 
     @Nullable
