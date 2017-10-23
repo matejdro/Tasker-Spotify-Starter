@@ -9,8 +9,8 @@ android {
         applicationId "com.matejdro.taskerspotifystarter"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 4
-        versionName "2.0.2"
+        versionCode 5
+        versionName "2.0.3"
 
         def spotifyProperties = new Properties()
         spotifyProperties.load(new FileInputStream(rootProject.file("spotify.properties")))
