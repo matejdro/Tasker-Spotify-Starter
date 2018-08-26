@@ -15,7 +15,7 @@ public class TaskerReceiver extends BroadcastReceiver {
         }
 
         Intent serviceIntent = new Intent(context, SpotifyExecutionService.class);
-        serviceIntent.putExtra(SpotifyExecutionService.EXTRA_TASKER_INTENT, intent);
+        serviceIntent.putExtra(SpotifyExecutionService.Companion.getEXTRA_TASKER_INTENT(), intent);
         ContextCompat.startForegroundService(context, serviceIntent);
     }
 }
