@@ -29,18 +29,10 @@ public class SpotifyUriConverter {
     }
 
     private static String generateContentUri(String mediaType, String mediaId) {
-        String uri = "content://com.spotify.music/" + mediaType + "/spotify%3A" + mediaType + "%3A" + mediaId;
-
-        if (!mediaType.equals("track")) {
-            uri += "/tracks";
-        }
-
-        return uri;
+        return "spotify:" + mediaType + ":" + mediaId;
     }
 
     private static String generateContentUri(String ownerUserId, String mediaType, String mediaId) {
-        return "content://com.spotify.music/" + mediaType + "/spotify%3Auser%3A" + ownerUserId + "%3A" + mediaType + "%3A" + mediaId + "/tracks";
+        return "spotify:user:" + ownerUserId + ":" + mediaType + ":" + mediaId;
     }
-
-
 }

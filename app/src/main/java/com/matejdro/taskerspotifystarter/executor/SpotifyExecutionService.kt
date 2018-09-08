@@ -1,35 +1,32 @@
 package com.matejdro.taskerspotifystarter.executor
 
-import android.app.IntentService
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
+import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
+import com.matejdro.taskerspotifystarter.BuildConfig
 import com.matejdro.taskerspotifystarter.R
 import com.matejdro.taskerspotifystarter.SpotifyConstants
 import com.matejdro.taskerspotifystarter.TaskerKeys
 import com.matejdro.taskerspotifystarter.spotifydata.SpotifyUriConverter
 import com.matejdro.taskerspotifystarter.tasker.TaskerPlugin
 import com.matejdro.taskerspotifystarter.util.ExceptionUtils
+import com.spotify.android.appremote.api.ConnectionParams
+import com.spotify.android.appremote.api.SpotifyAppRemote
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
-class SpotifyExecutionService : IntentService(TAG) {
 
-    private var taskerIntent: Intent? = null
+class SpotifyExecutionService : Service() {
+    private lateinit var taskerIntent: Intent
 
-    @Volatile
-    private var spotifyPlaying = false
-
-    private val spotifyStateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            spotifyPlaying = intent.getBooleanExtra("playstate", false)
-        }
-    }
+    private val parentJob = Job()
 
     override fun onCreate() {
         super.onCreate()
@@ -42,14 +39,12 @@ class SpotifyExecutionService : IntentService(TAG) {
                 .build()
 
         startForeground(1000, foregroundNotification)
-
-        registerReceiver(spotifyStateReceiver, IntentFilter(SpotifyConstants.ACTION_SPOTIFY_PLAYBACK_STATE_INTENT))
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        unregisterReceiver(spotifyStateReceiver)
+        parentJob.cancel()
     }
 
     private fun createNotificationChannel() {
@@ -71,18 +66,26 @@ class SpotifyExecutionService : IntentService(TAG) {
         return null
     }
 
-    override fun onHandleIntent(intent: Intent?) {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
-            return
+            stopSelf()
+            return START_NOT_STICKY
         }
 
         this.taskerIntent = intent.getParcelableExtra(EXTRA_TASKER_INTENT)
-        startPlayback()
+
+        launch(UI, parent = parentJob) {
+            startPlayback()
+            stopSelf()
+        }
+
+        return START_NOT_STICKY
     }
 
-    private fun startPlayback() {
+    private suspend fun startPlayback() {
         try {
-            val taskerBundle = taskerIntent!!.getBundleExtra("com.twofortyfouram.locale.intent.extra.BUNDLE")
+            val taskerBundle = taskerIntent.getBundleExtra("com.twofortyfouram.locale.intent.extra.BUNDLE")
+            println()
 
             var uri = taskerBundle.getString(TaskerKeys.KEY_MEDIA_URI)
             if (uri == null) {
@@ -96,44 +99,23 @@ class SpotifyExecutionService : IntentService(TAG) {
                 return
             }
 
-            val suCmdBuilder = StringBuilder()
-            suCmdBuilder.append("am startservice -a com.spotify.mobile.android.service.action.player.PLAY_CONTENT ")
-            suCmdBuilder.append("-d ")
-            suCmdBuilder.append(uri)
-            suCmdBuilder.append(' ')
+val connectionParams = ConnectionParams.Builder(BuildConfig.SPOTIFY_API_KEY)
+        .setRedirectUri(SpotifyConstants.REDIRECT_URI)
+        .showAuthView(true)
+        .build()
 
-            val shuffleMode = taskerBundle.getBoolean(TaskerKeys.KEY_SHUFFLE)
-            if (shuffleMode) {
-                suCmdBuilder.append("--ez shuffle true ")
-            } else {
-                suCmdBuilder.append("--ez shuffle false ")
+            println("Connect $uri")
+
+            SpotifyAppRemote.CONNECTOR.connectAndAwait(this,
+                    connectionParams).use { spotifyRemote ->
+                with(spotifyRemote.playerApi) {
+                    println("Shuffle")
+                    setShuffle(taskerBundle.getBoolean(TaskerKeys.KEY_SHUFFLE)).awaitSuspending()
+                    println("Play")
+                    play(uri).awaitSuspending()
+                }
             }
 
-            suCmdBuilder.append("com.spotify.music/com.spotify.mobile.android.service.SpotifyService")
-
-            val suCommandLine = suCmdBuilder.toString()
-
-            var args = arrayOf("su", "-c", suCommandLine)
-            var process = Runtime.getRuntime().exec(args)
-            process.waitFor()
-
-            Thread.sleep(2000)
-
-            if (!spotifyPlaying) {
-                // When spotify is not running, it can take two tries to restart it back up
-
-                args = arrayOf("su", "-c", suCommandLine)
-                process = Runtime.getRuntime().exec(args)
-                process.waitFor()
-            }
-
-            val putInForegroundCmdLine = "am startservice -a " +
-                    "com.spotify.mobile.android.service.action.client.FOREGROUND " +
-                    "com.spotify.music/com.spotify.mobile.android.service.SpotifyService"
-
-            args = arrayOf("su", "-c", putInForegroundCmdLine)
-            process = Runtime.getRuntime().exec(args)
-            process.waitFor()
 
             finishOK()
         } catch (e: Exception) {
