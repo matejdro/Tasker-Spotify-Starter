@@ -111,6 +111,12 @@ class SpotifyExecutionService : Service() {
                 }
             }
 
+            val putInForegroundCmdLine = "am startservice -a " +
+                    "com.spotify.mobile.android.service.action.client.FOREGROUND " +
+                    "com.spotify.music/com.spotify.mobile.android.service.SpotifyService"
+
+            val args = arrayOf("su", "-c", putInForegroundCmdLine)
+            Runtime.getRuntime().exec(args).waitFor()
 
             finishOK()
         } catch (e: Exception) {
