@@ -85,7 +85,6 @@ class SpotifyExecutionService : Service() {
     private suspend fun startPlayback() {
         try {
             val taskerBundle = taskerIntent.getBundleExtra("com.twofortyfouram.locale.intent.extra.BUNDLE")
-            println()
 
             var uri = taskerBundle.getString(TaskerKeys.KEY_MEDIA_URI)
             if (uri == null) {
@@ -99,19 +98,15 @@ class SpotifyExecutionService : Service() {
                 return
             }
 
-val connectionParams = ConnectionParams.Builder(BuildConfig.SPOTIFY_API_KEY)
-        .setRedirectUri(SpotifyConstants.REDIRECT_URI)
-        .showAuthView(true)
-        .build()
-
-            println("Connect $uri")
+            val connectionParams = ConnectionParams.Builder(BuildConfig.SPOTIFY_API_KEY)
+                    .setRedirectUri(SpotifyConstants.REDIRECT_URI)
+                    .showAuthView(true)
+                    .build()
 
             SpotifyAppRemote.CONNECTOR.connectAndAwait(this,
                     connectionParams).use { spotifyRemote ->
                 with(spotifyRemote.playerApi) {
-                    println("Shuffle")
                     setShuffle(taskerBundle.getBoolean(TaskerKeys.KEY_SHUFFLE)).awaitSuspending()
-                    println("Play")
                     play(uri).awaitSuspending()
                 }
             }

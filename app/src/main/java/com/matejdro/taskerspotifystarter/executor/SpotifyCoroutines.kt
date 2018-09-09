@@ -10,14 +10,13 @@ import kotlin.coroutines.experimental.suspendCoroutine
 
 suspend fun Connector.connectAndAwait(context: Context, connectionParams: ConnectionParams): SpotifyAppRemote {
     return suspendCoroutine { continuation ->
-        println("StartConnect")
         connect(context, connectionParams, object : Connector.ConnectionListener {
             override fun onFailure(error: Throwable) {
-                error.printStackTrace()
+                continuation.resumeWithException(error)
             }
 
             override fun onConnected(remote: SpotifyAppRemote) {
-                println("Connected")
+                continuation.resume(remote)
             }
         })
     }
