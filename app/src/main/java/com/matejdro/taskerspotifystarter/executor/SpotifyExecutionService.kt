@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
+import android.util.Log
 import com.matejdro.taskerspotifystarter.BuildConfig
 import com.matejdro.taskerspotifystarter.R
 import com.matejdro.taskerspotifystarter.SpotifyConstants
@@ -20,6 +21,7 @@ import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
 
@@ -108,15 +110,27 @@ class SpotifyExecutionService : Service() {
                 with(spotifyRemote.playerApi) {
                     setShuffle(taskerBundle.getBoolean(TaskerKeys.KEY_SHUFFLE)).awaitSuspending()
                     play(uri).awaitSuspending()
+
+                    delay(500)
+                    val playerState = getPlayerState().awaitSuspending()
+                    Log.d("SpotifyTaskerStarter", "PlayerState $playerState")
+
+                    if (playerState.isPaused || playerState.track == null) {
+                        val launcherActivity = packageManager.getLaunchIntentForPackage("com.spotify.music")
+                        if (launcherActivity != null) {
+                            startActivity(launcherActivity)
+                            delay(500)
+                        }
+                    }
                 }
             }
 
-            val putInForegroundCmdLine = "am startservice -a " +
-                    "com.spotify.mobile.android.service.action.client.FOREGROUND " +
-                    "com.spotify.music/com.spotify.mobile.android.service.SpotifyService"
+            /* val putInForegroundCmdLine = "am startservice -a " +
+                     "com.spotify.mobile.android.service.action.client.FOREGROUND " +
+                     "com.spotify.music/com.spotify.mobile.android.service.SpotifyService"
 
-            val args = arrayOf("su", "-c", putInForegroundCmdLine)
-            Runtime.getRuntime().exec(args).waitFor()
+             val args = arrayOf("su", "-c", putInForegroundCmdLine)
+             Runtime.getRuntime().exec(args).waitFor()*/
 
             finishOK()
         } catch (e: Exception) {
