@@ -19,10 +19,11 @@ import com.matejdro.taskerspotifystarter.tasker.TaskerPlugin
 import com.matejdro.taskerspotifystarter.util.ExceptionUtils
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.SpotifyAppRemote
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class SpotifyExecutionService : Service() {
@@ -76,7 +77,7 @@ class SpotifyExecutionService : Service() {
 
         this.taskerIntent = intent.getParcelableExtra(EXTRA_TASKER_INTENT)
 
-        launch(UI, parent = parentJob) {
+        GlobalScope.launch(Dispatchers.Main + parentJob) {
             startPlayback()
             stopSelf()
         }

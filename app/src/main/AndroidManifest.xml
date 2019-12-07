@@ -64,6 +64,9 @@
         </receiver>
 
         <service android:name=".executor.SpotifyExecutionService" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="048e0255b748bd3c0abc33c75a2601ff67b550c8" />
     </application>
 
 </manifest>
