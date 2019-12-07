@@ -13,7 +13,6 @@ import com.matejdro.taskerspotifystarter.SpotifyConstants;
 import com.matejdro.taskerspotifystarter.TaskerKeys;
 import com.matejdro.taskerspotifystarter.common.ui.TaskerSetupActivity;
 import com.matejdro.taskerspotifystarter.common.ui.UriReceiver;
-import com.matejdro.taskerspotifystarter.config.rootcheck.RootCheckFragment;
 import com.matejdro.taskerspotifystarter.config.userlibrary.LibraryItemTypeSelectorFragment;
 import com.matejdro.taskerspotifystarter.config.userlibrary.LibraryListFragment;
 import com.matejdro.taskerspotifystarter.spotifydata.SpotifyListType;
@@ -44,7 +43,7 @@ public class StartPlaybackSetupActivity extends TaskerSetupActivity {
         setContentView(R.layout.activity_tasker_config);
 
         if (savedInstanceState == null) {
-            swapFragment(new RootCheckFragment(), false);
+            returnToRoot();
         }
     }
 
@@ -78,7 +77,7 @@ public class StartPlaybackSetupActivity extends TaskerSetupActivity {
         finish();
     }
 
-    public void onRootCheckSuccessful() {
+    public void returnToRoot() {
         swapFragment(new PickerTypeSelectorFragment(), false);
     }
 
@@ -134,8 +133,8 @@ public class StartPlaybackSetupActivity extends TaskerSetupActivity {
                 .setTitle(R.string.error)
                 .setMessage(errorDescription)
                 .setPositiveButton(android.R.string.ok, null)
-                .setOnCancelListener(dialogInterface -> onRootCheckSuccessful())
-                .setOnDismissListener(dialogInterface -> onRootCheckSuccessful())
+                .setOnCancelListener(dialogInterface -> returnToRoot())
+                .setOnDismissListener(dialogInterface -> returnToRoot())
                 .show();
     }
 

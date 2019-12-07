@@ -106,32 +106,12 @@ class SpotifyExecutionService : Service() {
                     .showAuthView(true)
                     .build()
 
-            connectToSpotifyAndAwait(this,
-                    connectionParams).use { spotifyRemote ->
+            connectToSpotifyAndAwait(this, connectionParams).use { spotifyRemote ->
                 with(spotifyRemote.playerApi) {
                     setShuffle(taskerBundle.getBoolean(TaskerKeys.KEY_SHUFFLE)).awaitSuspending()
                     play(uri).awaitSuspending()
-
-                    delay(500)
-                    val playerState = getPlayerState().awaitSuspending()
-                    Log.d("SpotifyTaskerStarter", "PlayerState $playerState")
-
-                    if (playerState.isPaused || playerState.track == null) {
-                        val launcherActivity = packageManager.getLaunchIntentForPackage("com.spotify.music")
-                        if (launcherActivity != null) {
-                            startActivity(launcherActivity)
-                            delay(500)
-                        }
-                    }
                 }
             }
-
-            /* val putInForegroundCmdLine = "am startservice -a " +
-                     "com.spotify.mobile.android.service.action.client.FOREGROUND " +
-                     "com.spotify.music/com.spotify.mobile.android.service.SpotifyService"
-
-             val args = arrayOf("su", "-c", putInForegroundCmdLine)
-             Runtime.getRuntime().exec(args).waitFor()*/
 
             finishOK()
         } catch (e: Exception) {
