@@ -10,9 +10,9 @@ import kotlin.coroutines.suspendCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-suspend fun Connector.connectAndAwait(context: Context, connectionParams: ConnectionParams): SpotifyAppRemote {
+suspend fun connectToSpotifyAndAwait(context: Context, connectionParams: ConnectionParams): SpotifyAppRemote {
     return suspendCoroutine { continuation ->
-        connect(context, connectionParams, object : Connector.ConnectionListener {
+        SpotifyAppRemote.connect(context, connectionParams, object : Connector.ConnectionListener {
             override fun onFailure(error: Throwable) {
                 continuation.resumeWithException(error)
             }
@@ -43,6 +43,6 @@ inline fun <T> SpotifyAppRemote.use(block: (SpotifyAppRemote) -> T): T {
     try {
         return block(this)
     } finally {
-        SpotifyAppRemote.CONNECTOR.disconnect(this)
+        SpotifyAppRemote.disconnect(this)
     }
 }

@@ -106,7 +106,7 @@ class SpotifyExecutionService : Service() {
                     .showAuthView(true)
                     .build()
 
-            SpotifyAppRemote.CONNECTOR.connectAndAwait(this,
+            connectToSpotifyAndAwait(this,
                     connectionParams).use { spotifyRemote ->
                 with(spotifyRemote.playerApi) {
                     setShuffle(taskerBundle.getBoolean(TaskerKeys.KEY_SHUFFLE)).awaitSuspending()
